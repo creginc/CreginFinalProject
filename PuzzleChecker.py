@@ -13,26 +13,8 @@ def checkPuzzle(grid):
         if sorted(grid[:, i]) != sorted_nums:
             return False
 
-        for i in range(3):
-            for j in range(3):
-                if np.sum(grid[i:i+3, j:j+3]) != 45 or sorted(grid[i:i+3, j:j+3])
-        if np.sum(grid[:3, :3]) != 45 or sorted(grid[:3, :3].ravel) != sorted_nums:
-            return False
-        if np.sum(grid[3:6, :3]) != 45 or sorted(grid[3:6, :3].ravel) != sorted_nums:
-            return False
-        if np.sum(grid[6:9, :3]) != 45 or sorted(grid[6:9, :3].ravel) != sorted_nums:
-            return False
-
-        if np.sum(grid[:3, 3:6]) != 45 or sorted(grid[:3, 3:6].ravel) != sorted_nums:
-            return False
-        if np.sum(grid[3:6, 3:6]) != 45 or sorted(grid[3:6, 3:6].ravel) != sorted_nums:
-            return False
-        if np.sum(grid[6:9, 3:6]) != 45 or sorted(grid[6:9, 3:6].ravel) != sorted_nums:
-            return False
-
-        if np.sum(grid[:3, 6:9]) != 45 or sorted(grid[:3, 6:9].ravel) != sorted_nums:
-            return False
-        if np.sum(grid[3:6, 6:9]) != 45 or sorted(grid[3:6, 6:9].ravel) != sorted_nums:
-            return False
-        if np.sum(grid[6:9, 6:9]) != 45 or sorted(grid[6:9, 6:9].ravel) != sorted_nums:
-            return False
+        for i in range(0, 3, 3):
+            for j in range(0, 3, 3):
+                if np.sum(grid[i:i+3, j:j+3]) != 45 or sorted(grid[i:i+3, j:j+3]):
+                    return False
+        
