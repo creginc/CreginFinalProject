@@ -1,76 +1,121 @@
 import random
+import copy
 
 
 class _SudokuGrid:
+    """generates and solves Sudoku puzzles using a backtracking algorithm"""
 
     def __init__(self):
-        self.grid = [[0] * 9 for i in range(9)]
+        self.counter = 0
+        self.grid = [[0] * 9 for x in range(9)]
+        self.generate_puzzle()
+        self.original = copy.deepcopy(self.grid)
 
-    def __str__(self):
-        grid_str = ''
-        for r in range(9):
-            for c in range(9):
-                grid_str += str(self.grid[r][c]) + '\t|\t'
-            grid_str += '\n'
-        return grid_str
+    def generate_puzzle(self):
+        """generates a new puzzle and solves it"""
+        self.generate_solution()
+        self.remove_numbers_from_grid()
+        return
 
-    def valid_num(self, num, pos):
+    def valid_spot(self, grid, row, col, number):
         # check if in row
-        for i in range(9):
-            if self.grid[pos[0]][i] == num and pos[1] != i:
-                return False
+        if number in grid[row]:
+            return False
         # check if in column
         for i in range(9):
-            if self.grid[i][pos[1]] == num and pos[0] != i:
+            if grid[i][col] == number:
                 return False
         # check if in box
-        box_row = pos[0] // 3
-        box_col = pos[1] // 3
-        for i in range(box_row*3, box_row*3 + 3):
-            for j in range(box_col*3, box_col*3 + 3):
-                if self.grid[i][j] == num and pos != (i, j):
+        box_row = row // 3
+        box_col = col // 3
+        for i in range(box_row * 3, box_row * 3 + 3):
+            for j in range(box_col * 3, box_col * 3 + 3):
+                if grid[i][j] == number:
                     return False
         return True
 
-    def find_empty(self):
+    def find_empty(self, grid):
+        """return the next empty square coordinates in the grid"""
         for i in range(9):
             for j in range(9):
-                if self.grid[i][j] == 0:
-                    return i, j
-        return None
+                if grid[i][j] == 0:
+                    return (i, j)
+        return
 
-    def solve_puzzle(self):
-        if self.find_empty() is None:
-            return True
-        else:
-            row, col = self.find_empty()
-        for i in range(1, 10):
-            if self.valid_num(i, (row, col)):
-                self.grid[row][col] = i
-                if self.solve_puzzle():
-                    return True
-                self.grid[row][col] = 0
+    def solve_puzzle(self, grid):
+        """solve the sudoku puzzle with backtracking"""
+        for i in range(0, 81):
+            row = i // 9
+            col = i % 9
+            # find next empty cell
+            if grid[row][col] == 0:
+                for number in range(1, 10):
+
+                    if self.valid_spot(grid, row, col, number):
+                        grid[row][col] = number
+                        if not self.find_empty(grid):
+                            self.counter += 1
+                            break
+                        else:
+                            if self.solve_puzzle(grid):
+                                return True
+                break
+        grid[row][col] = 0
         return False
 
-    def generate_puzzle(self):
-        nums = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        for i in range(3):
-            for j in range(3):
-                n = random.choice(nums)
-                self.grid[i][j] = n
-                nums.remove(n)
+    def generate_solution(self):
+        """generates a full solution with backtracking"""
+        number_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        for i in range(0, 81):
+            row = i // 9
+            col = i % 9
+            # find next empty cell
+            if self.grid[row][col] == 0:
+                random.shuffle(number_list)
+                for number in number_list:
+                    if self.valid_spot(self.grid, row, col, number):
+                        self.grid[row][col] = number
+                        if not self.find_empty(self.grid):
+                            return True
+                        else:
+                            if self.generate_solution():
+                                # if the grid is full
+                                return True
+                break
+        self.grid[row][col] = 0
+        return False
 
-        nums = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        for i in range(3, 6):
-            for j in range(3, 6):
-                n = random.choice(nums)
-                self.grid[i][j] = n
-                nums.remove(n)
+    def get_filled_spots(self, grid):
+        """returns a shuffled list of non-empty squares in the puzzle"""
+        filled_spots = []
+        for i in range(len(grid)):
+            for j in range(len(grid)):
+                if grid[i][j] != 0:
+                    filled_spots.append((i, j))
+        random.shuffle(filled_spots)
+        return filled_spots
 
-        nums = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        for i in range(6, 9):
-            for j in range(6, 9):
-                n = random.choice(nums)
-                self.grid[i][j] = n
-                nums.remove(n)
-        self.solve_puzzle()
+    def remove_numbers_from_grid(self):
+        """remove numbers from the grid to create the puzzle"""
+        # get all non-empty squares from the grid
+        filled_spots = self.get_filled_spots(self.grid)
+        filled_count = len(filled_spots)
+        rounds = 3
+        while rounds > 0 and filled_count >= 17:
+
+            row, col = filled_spots.pop()
+            filled_count -= 1
+
+            removed_square = self.grid[row][col]
+            self.grid[row][col] = 0
+
+            grid_copy = copy.deepcopy(self.grid)
+
+            self.counter = 0
+            self.solve_puzzle(grid_copy)
+
+            if self.counter != 1:
+                self.grid[row][col] = removed_square
+                filled_count += 1
+                rounds -= 1
+        return
