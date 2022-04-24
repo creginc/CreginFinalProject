@@ -10,11 +10,22 @@ class _SudokuGrid:
         self.counter = 0
         self.grid = [[0] * 9 for x in range(9)]
         self.generate_puzzle()
+        self.original_filled = []
+        for r in range(9):
+            for c in range(9):
+                if self.grid[r][c] != 0:
+                    self.original_filled.append((r, c))
+        solve = copy.deepcopy(self)
+        solve.solve_puzzle(solve.grid)
+        self.solution = solve.grid
+        print(self.grid)
+        print(self.solution)
 
     def generate_puzzle(self):
         """generates a Sudoku puzzle by finding a valid, unique puzzle solution and then removing
         numbers to result in a solvable grid with one solution"""
         self.generate_solution()
+        self.solved = self.grid
         self.remove_numbers_from_grid()
         return
 
@@ -72,7 +83,6 @@ class _SudokuGrid:
                             if self.solve_puzzle(grid):
                                 return True
                 break
-        grid[row][col] = 0
         return False
 
     def generate_solution(self):
@@ -80,8 +90,8 @@ class _SudokuGrid:
         number_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         # iterates over every spot in the grid
         for i in range(0, 81):
-            row = i // 9
-            col = i % 9
+            row = i % 9
+            col = i // 9
             # locates where the next empty spot is
             if self.grid[row][col] == 0:
                 # randomizes the order of the list of values between 1 and 9, inclusive
@@ -105,7 +115,7 @@ class _SudokuGrid:
 
     def get_filled_spots(self, grid):
         """searches the puzzle for filled spots and returns a shuffled list of their indices
-        Parameter: grid(9x9 grid being searched"""
+        Parameter: grid(9x9 grid being searched)"""
         filled_spots = []
         # iterates over entire grid
         for i in range(len(grid)):
@@ -122,7 +132,7 @@ class _SudokuGrid:
         # finds all the filled spots in the grid
         filled_spots = self.get_filled_spots(self.grid)
         filled_count = len(filled_spots)
-        iteration = 5
+        iteration = 3
         # traverse the grid and at each spot, remove a number, check that the puzzle is still solvable
         # with a unique solution, and then move on to the next spot
         # if not solvable after removing the number, put the number back at its spot and move to the next
@@ -144,3 +154,11 @@ class _SudokuGrid:
                 filled_count += 1
                 iteration -= 1
         return
+
+    def insert_num(self, r, c, num):
+        if self.grid[r][c] == 0:
+            self.grid[r][c] = num
+
+    def delete_num(self, r, c, val):
+        if (r, c) not in self.original_filled:
+            self.grid[r][c] = 0
