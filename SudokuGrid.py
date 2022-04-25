@@ -18,8 +18,6 @@ class _SudokuGrid:
         solve = copy.deepcopy(self)
         solve.solve_puzzle(solve.grid)
         self.solution = solve.grid
-        print(self.grid)
-        print(self.solution)
 
     def generate_puzzle(self):
         """generates a Sudoku puzzle by finding a valid, unique puzzle solution and then removing
@@ -137,18 +135,13 @@ class _SudokuGrid:
         # with a unique solution, and then move on to the next spot
         # if not solvable after removing the number, put the number back at its spot and move to the next
         while iteration > 0 and filled_count >= 17:
-
             row, col = filled_spots.pop()
             filled_count -= 1
-
             removed_square = self.grid[row][col]
             self.grid[row][col] = 0
-
             grid_copy = copy.deepcopy(self.grid)
-
             self.counter = 0
             self.solve_puzzle(grid_copy)
-
             if self.counter != 1:
                 self.grid[row][col] = removed_square
                 filled_count += 1
