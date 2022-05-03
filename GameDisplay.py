@@ -37,7 +37,9 @@ class GameBoard:
             for i in range(500 // 9, 500 * 8 // 9, 500 // 9):
                 pygame.draw.line(screen, (0, 0, 0), (500, i), (1000, i), 5)
                 pygame.draw.line(screen, (0, 0, 0), (i+500, 0), (i+500, 500), 5)
+            # draws a red square on the screen to indicate the current grid position selected based on the values of r and c
             pygame.draw.rect(screen, (225, 0, 0), (c * 500 // 9 + 500, r * 500 // 9, 500 // 9, 500 // 9), 8)
+            # displays the title of the game to the screen
             title = self.title_font.render('SUDOKU', 1, (0, 0, 0))
             screen.blit(title, (45, 80))
             # displays the rules to the right of the puzzle
@@ -76,6 +78,8 @@ class GameBoard:
                             else:
                                 num_txt = self.grid_font.render(str(g.grid[i][j]), 1, (0, 0, 225))
                                 screen.blit(num_txt, (j * 56 + 510, i * 56 + 5))
+            # checks for user input from the keyboard and either updates the r and c values if a directional key is pressed, updates the val variable
+            # if a number key is pressed, checks the puzzle's correctness if the c key is pressed, or generates a new puzzle if the n key is pressed
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
