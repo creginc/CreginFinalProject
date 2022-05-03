@@ -10,11 +10,7 @@ class _SudokuGrid:
         self.counter = 0
         self.grid = [[0] * 9 for x in range(9)]
         self.generate_puzzle()
-        self.original_filled = []
-        for r in range(9):
-            for c in range(9):
-                if self.grid[r][c] != 0:
-                    self.original_filled.append((r, c))
+        self.original_filled = self.get_filled_spots(self.grid)
         solve = copy.deepcopy(self)
         solve.solve_puzzle(solve.grid)
         self.solution = solve.grid
@@ -23,11 +19,10 @@ class _SudokuGrid:
         """generates a Sudoku puzzle by finding a valid, unique puzzle solution and then removing
         numbers to result in a solvable grid with one solution"""
         self.generate_solution()
-        self.solved = self.grid
         self.remove_numbers_from_grid()
-        return
 
-    def valid_spot(self, grid, row, col, num):
+    @staticmethod
+    def valid_spot(grid, row, col, num):
         """checks that the number being entered in the spot is valid (does not already exist
         in row, column, or 3x3 square
         Parameters: grid(the puzzle grid), row(row index of spot being tested), col(column index
@@ -48,13 +43,14 @@ class _SudokuGrid:
                     return False
         return True
 
-    def find_empty(self, grid):
+    @staticmethod
+    def find_empty(grid):
         """searches the grid for the next empty spot and returns the indices of that spot
         Parameter: grid (9x9 grid being searched)"""
         for i in range(9):
             for j in range(9):
                 if grid[i][j] == 0:
-                    return (i, j)
+                    return i, j
         return None
 
     def solve_puzzle(self, grid):
@@ -111,13 +107,14 @@ class _SudokuGrid:
         self.grid[row][col] = 0
         return False
 
-    def get_filled_spots(self, grid):
+    @staticmethod
+    def get_filled_spots(grid):
         """searches the puzzle for filled spots and returns a shuffled list of their indices
         Parameter: grid(9x9 grid being searched)"""
         filled_spots = []
         # iterates over entire grid
-        for i in range(len(grid)):
-            for j in range(len(grid)):
+        for i in range(9):
+            for j in range(9):
                 # if spot is not 0, meaning it's full, its indices are added to the list
                 if grid[i][j] != 0:
                     filled_spots.append((i, j))
@@ -146,12 +143,19 @@ class _SudokuGrid:
                 self.grid[row][col] = removed_square
                 filled_count += 1
                 iteration -= 1
-        return
 
     def insert_num(self, r, c, num):
+        """checks that a grid position is empty (if val is 0) and if so, assigns the num parameter
+        at the position indicated by the r and c parameters
+        Parameters: r (row index where num is being entered), c (column index where num is being
+        entered), num (number being entered at the index (r, c))"""
         if self.grid[r][c] == 0:
             self.grid[r][c] = num
 
-    def delete_num(self, r, c, val):
+    def delete_num(self, r, c):
+        """checks that a grid position at the index indicated by the r and c parameters was not
+        part of the originally-filled puzzle (meaning the current val was entered by the user)
+        and if so, assigns the 0 value at that spot to indicate that the position is empty
+        Parameters: r (row index where value is being deleted), c (column index where value is being deleted)"""
         if (r, c) not in self.original_filled:
             self.grid[r][c] = 0
